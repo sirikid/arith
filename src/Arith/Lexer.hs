@@ -1,9 +1,9 @@
 module Arith.Lexer
-  ( Token
+  ( Token(..)
   , tokenize
   ) where
 
 data Token = Token
 
 tokenize :: String -> Either String [Token]
-tokenize _ = undefined
+tokenize = Left

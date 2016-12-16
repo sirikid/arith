@@ -4,5 +4,5 @@ module Arith.Interpreter
 
 import Arith.Parser (Term(..))
 
-eval :: Term -> Term
-eval _ = undefined
+eval :: Term -> Either Term Term
+eval = Left
