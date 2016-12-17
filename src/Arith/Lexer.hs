@@ -3,8 +3,8 @@ module Arith.Lexer
   , tokenize
   ) where
 
-data Token = Token
-  deriving Show
+data Token = KwTrue | KwFalse | KwIf | KwThen | KwElse | KwZero | KwSucc | KwPred | KwIsZero
+  deriving (Eq, Show)
 
 tokenize :: String -> Either String [Token]
 tokenize = Left
