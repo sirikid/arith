@@ -4,6 +4,7 @@ module Arith.Lexer
   ) where
 
 data Token = Token
+  deriving Show
 
 tokenize :: String -> Either String [Token]
 tokenize = Left
