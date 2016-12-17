@@ -13,6 +13,7 @@ instance Show Failure where
     ParsingF      cause -> "can't parse " ++ show cause
     EvaluationF   cause -> "can't eval " ++ show cause
 
+main :: IO ()
 main = do
   putStrLn "Type :q for quit"
   repl where
