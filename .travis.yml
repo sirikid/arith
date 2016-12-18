@@ -30,4 +30,4 @@ script:
 - stack --no-terminal test --haddock --no-haddock-deps
 
 notifications:
-  eval: false
+  email: false
