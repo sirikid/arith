@@ -27,4 +27,4 @@ spec = do
       tokenize "true " `shouldBe` tokenize "true"
 
     it "ignores spaces around keywords" $ do
-      tokenize "\n\rtrue\t\0" `shouldBe` tokenize "true"
+      tokenize "\n\rtrue\t\v" `shouldBe` tokenize "true"
