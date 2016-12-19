@@ -28,3 +28,9 @@ spec = do
 
     it "ignores spaces around keywords" $ do
       tokenize "\n\rtrue\t\v" `shouldBe` tokenize "true"
+
+    it "returns sequence of tokens for sequence of keywords" $ do
+      tokenize "true false" `shouldBe` Right [KwTrue,KwFalse]
+      tokenize "false true" `shouldBe` Right [KwFalse,KwTrue]
+      -- NOTE: It is not a valid program, but we can tokenize it
+      tokenize "if then else" `shouldBe` Right [KwIf,KwThen,KwElse]
