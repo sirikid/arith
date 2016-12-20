@@ -3,16 +3,15 @@ module Arith.Lexer
   , tokenize
   ) where
 
-import Data.Maybe (fromMaybe)
+import Data.Maybe (maybe)
 
 data Token = KwTrue | KwFalse | KwIf | KwThen | KwElse | KwZero | KwSucc | KwPred | KwIsZero
   deriving (Eq, Show)
 
 tokenize :: String -> Either String [Token]
 tokenize input = fmap reverse $ foldl tryParseKw (Right []) $ words input where
-  tryParseKw acc word = case acc of
-    Left string -> Left $ string ++ " " ++ word
-    Right tokens -> fromMaybe (Left word) (fmap (Right . (:tokens)) (lookup word kwMap))
+  tryParseKw acc str = acc >>= \ts -> fmap (:ts) $ lookup' str
+  lookup' str = maybe (Left str) Right $ lookup str kwMap
   kwMap =
     [("true"    ,KwTrue  )
     ,("false"   ,KwFalse )
