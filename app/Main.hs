@@ -18,6 +18,6 @@ main = do
         else do
         putStrLn $ either id show $ return line >>= tokenize' >>= parse' >>= eval'
         repl
-    tokenize' = first (("Can't tokenize string "++) . show) . tokenize
-    parse'    = first (("Can't parse tokens "++) . show) . parse
-    eval'     = first (("Can't evaluate AST "++) . show) . eval
+    tokenize' = first (("Unexpected character sequence: "++) . show) . tokenize
+    parse'    = first (("Unexpected token sequence: "++)     . show) . parse
+    eval'     = first (("Unevaluable term: "++)              . show) . eval
