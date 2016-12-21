@@ -5,8 +5,8 @@ module Arith.Parser
 
 import Arith.Lexer (Token(..))
 
-data Term = Term
-  deriving Show
+data Term = TmZero | TmTrue | TmFalse | TmSucc Term | TmPred Term | TmIsZero Term | TmIf Term Term Term
+  deriving (Eq, Show)
 
 parse :: [Token] -> Either [Token] Term
 parse = Left
