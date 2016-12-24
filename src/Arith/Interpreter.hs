@@ -24,4 +24,18 @@ isNumericValue term = case term of
   _ -> False
 
 eval :: Term -> Either Term Term
-eval = Left
+eval term = go term
+  where
+    go (TmIf cond ifTrue ifFalse) = case cond of
+      TmTrue  -> Right $ ifTrue
+      TmFalse -> Right $ ifFalse
+      _ -> go cond >>= \cond' -> go $ TmIf cond' ifTrue ifFalse
+    go (TmIsZero n) | isNumericValue n = isZero <$> go n
+    go (TmSucc (TmPred t)) = go t
+    go (TmPred (TmSucc t)) = go t
+    go t = if isValue t
+      then Right t
+      else Left t
+    isZero n = if n == TmZero
+      then TmTrue
+      else TmFalse
