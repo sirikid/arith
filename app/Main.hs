@@ -7,15 +7,15 @@ import System.IO (hFlush,stdout)
 
 main :: IO ()
 main = do
-  loop "Type :q for quit"
+  go "Type :q for quit"
   where
-    loop prev = do
+    go prev = do
       putStr $ prev ++ "\n >> "
       hFlush stdout
       line <- getLine
       if ":q" `isPrefixOf` line
         then return ()
-        else loop $ evalString line
+        else go $ evalString line
     evalString s = either id show $ do
       tokens <- tokenize' s
       ast    <- parse' tokens
