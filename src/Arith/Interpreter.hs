@@ -1,8 +1,5 @@
 module Arith.Interpreter
   ( eval
-  , isValue
-  , isBooleanValue
-  , isNumericValue
   ) where
 
 import Arith.Parser (Term(..))
