@@ -18,7 +18,7 @@ tokenize input = fmap reverse $ foldl tryParseKw (Right []) $ words input where
     ,("if"      ,KwIf    )
     ,("then"    ,KwThen  )
     ,("else"    ,KwElse  )
-    ,("0"       ,KwZero  )
+    ,("zero"    ,KwZero  )
     ,("succ"    ,KwSucc  )
     ,("pred"    ,KwPred  )
     ,("is_zero" ,KwIsZero)
