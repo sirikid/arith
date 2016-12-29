@@ -5,7 +5,7 @@ module Arith.Lexer
 
 import Data.Maybe (maybe)
 
-data Token = KwTrue | KwFalse | KwIf | KwThen | KwElse | KwZero | KwSucc | KwPred | KwIsZero
+data Token = KwIf | KwThen | KwElse | KwZero | KwSucc | KwPred | KwTrue | KwFalse | KwIsZero
   deriving (Eq, Show)
 
 tokenize :: String -> Either String [Token]
@@ -13,13 +13,13 @@ tokenize input = fmap reverse $ foldl tryParseKw (Right []) $ words input where
   tryParseKw acc str = acc >>= \ts -> fmap (:ts) $ lookup' str
   lookup' str = maybe (Left str) Right $ lookup str kwMap
   kwMap =
-    [("true"    ,KwTrue  )
-    ,("false"   ,KwFalse )
-    ,("if"      ,KwIf    )
+    [("if"      ,KwIf    )
     ,("then"    ,KwThen  )
     ,("else"    ,KwElse  )
     ,("zero"    ,KwZero  )
     ,("succ"    ,KwSucc  )
     ,("pred"    ,KwPred  )
+    ,("true"    ,KwTrue  )
+    ,("false"   ,KwFalse )
     ,("is_zero" ,KwIsZero)
     ]

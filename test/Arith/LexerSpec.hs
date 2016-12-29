@@ -9,30 +9,29 @@ spec :: Spec
 spec = do
   describe "tokenize" $ do
     it "splits a string into a list of tokens" $ do
-      let string = "true false if then else zero succ pred is_zero"
-      let tokens = [KwTrue,KwFalse,KwIf,KwThen,KwElse,KwZero,KwSucc,KwPred,KwIsZero]
+      let string = "if then else zero succ pred true false is_zero"
+      let tokens = [KwIf,KwThen,KwElse,KwZero,KwSucc,KwPred,KwTrue,KwFalse,KwIsZero]
       tokenize string `shouldBe` Right tokens
 
     context "when an empty string given" $ do
       it "returns an empty list" $ do
         tokenize "" `shouldBe` Right []
 
-    -- FIXME: Context message
-    context "when only whitespaces given" $ do
+    context "when a given string contains only whitespace characters" $ do
       it "returns an empty list" $ do
         tokenize " " `shouldBe` Right []
         tokenize "\n\r\t\v" `shouldBe` Right []
 
     context "when a single keyword given" $ do
       it "returns a single token" $ do
-        tokenize "true"    `shouldBe` Right [KwTrue  ]
-        tokenize "false"   `shouldBe` Right [KwFalse ]
-        tokenize "if"      `shouldBe` Right [KwIf    ]
-        tokenize "then"    `shouldBe` Right [KwThen  ]
-        tokenize "else"    `shouldBe` Right [KwElse  ]
-        tokenize "zero"    `shouldBe` Right [KwZero  ]
-        tokenize "succ"    `shouldBe` Right [KwSucc  ]
-        tokenize "pred"    `shouldBe` Right [KwPred  ]
+        tokenize "if"      `shouldBe` Right [KwIf]
+        tokenize "then"    `shouldBe` Right [KwThen]
+        tokenize "else"    `shouldBe` Right [KwElse]
+        tokenize "zero"    `shouldBe` Right [KwZero]
+        tokenize "succ"    `shouldBe` Right [KwSucc]
+        tokenize "pred"    `shouldBe` Right [KwPred]
+        tokenize "true"    `shouldBe` Right [KwTrue]
+        tokenize "false"   `shouldBe` Right [KwFalse]
         tokenize "is_zero" `shouldBe` Right [KwIsZero]
 
     context "when a sequence of keywords given" $ do
