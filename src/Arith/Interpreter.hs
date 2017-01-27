@@ -1,8 +1,11 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Arith.Interpreter
   ( eval
   ) where
 
 import Arith.Parser (Term(..))
+import Control.Monad.Except (throwError)
 
 isValue :: Term -> Bool
 isValue term = isBooleanValue term || isNumericValue term
@@ -20,7 +23,7 @@ isNumericValue term = case term of
   TmPred t -> isNumericValue t
   _        -> False
 
-eval :: Term -> Either Term Term
+eval :: Term -> Either String Term
 eval term = go term
   where
     go (TmIf cond ifTrue ifFalse) = case cond of
@@ -30,7 +33,9 @@ eval term = go term
     go (TmIsZero n) | isNumericValue n = isZero <$> go n
     go (TmSucc (TmPred t)) | isNumericValue t = go t
     go (TmPred (TmSucc t)) | isNumericValue t = go t
-    go t = (if isValue t then Right else Left) t
+    go t = if isValue t
+      then return t
+      else throwError $ "Unevaluable term: " ++ show t
     isZero n | isNumericValue n = if n == TmZero
       then TmTrue
       else TmFalse
