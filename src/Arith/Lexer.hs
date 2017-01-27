@@ -15,7 +15,8 @@ tokenize :: String -> Either String [Token]
 tokenize input = fmap reverse $ foldl prependToken (return []) $ words input
   where
     prependToken acc word = acc >>= \ts -> fmap (:ts) $ intoToken word
-    intoToken word = maybe (throwError $ "Unexpected character sequence: " ++ show word) return $ lookup word wordsToTokens
+    intoToken word = maybe (unparsable word) return $ lookup word wordsToTokens
+    unparsable word = throwError $ "Unexpected character sequence: " ++ show word
     wordsToTokens =
       [("if"      ,KwIf    )
       ,("then"    ,KwThen  )
