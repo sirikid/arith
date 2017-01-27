@@ -3,7 +3,12 @@ module Arith.LexerSpec
   ) where
 
 import Arith.Lexer
-import Test.Hspec
+import Control.Monad.Except (throwError)
+import Test.Hspec (context, describe, it, shouldBe, Spec)
+
+-- FIXME
+actual `shouldReturn` expected = actual `shouldBe` return expected
+actual `shouldThrow` expectedError = actual `shouldBe` throwError expectedError
 
 spec :: Spec
 spec = do
@@ -11,37 +16,37 @@ spec = do
     it "splits a string into a list of tokens" $ do
       let string = "if then else zero succ pred true false is_zero"
       let tokens = [KwIf,KwThen,KwElse,KwZero,KwSucc,KwPred,KwTrue,KwFalse,KwIsZero]
-      tokenize string `shouldBe` Right tokens
+      tokenize string `shouldReturn` tokens
 
     context "when an empty string given" $ do
       it "returns an empty list" $ do
-        tokenize "" `shouldBe` Right []
+        tokenize "" `shouldReturn` []
 
     context "when a given string contains only whitespace characters" $ do
       it "returns an empty list" $ do
-        tokenize " " `shouldBe` Right []
-        tokenize "\n\r\t\v" `shouldBe` Right []
+        tokenize " " `shouldReturn` []
+        tokenize "\n\r\t\v" `shouldReturn` []
 
     context "when a single keyword given" $ do
       it "returns a single token" $ do
-        tokenize "if"      `shouldBe` Right [KwIf]
-        tokenize "then"    `shouldBe` Right [KwThen]
-        tokenize "else"    `shouldBe` Right [KwElse]
-        tokenize "zero"    `shouldBe` Right [KwZero]
-        tokenize "succ"    `shouldBe` Right [KwSucc]
-        tokenize "pred"    `shouldBe` Right [KwPred]
-        tokenize "true"    `shouldBe` Right [KwTrue]
-        tokenize "false"   `shouldBe` Right [KwFalse]
-        tokenize "is_zero" `shouldBe` Right [KwIsZero]
+        tokenize "if" `shouldReturn` [KwIf]
+        tokenize "then" `shouldReturn` [KwThen]
+        tokenize "else" `shouldReturn` [KwElse]
+        tokenize "zero" `shouldReturn` [KwZero]
+        tokenize "succ" `shouldReturn` [KwSucc]
+        tokenize "pred" `shouldReturn` [KwPred]
+        tokenize "true" `shouldReturn` [KwTrue]
+        tokenize "false" `shouldReturn` [KwFalse]
+        tokenize "is_zero" `shouldReturn` [KwIsZero]
 
     context "when a sequence of keywords given" $ do
       it "returns a sequence of tokens" $ do
-        tokenize "zero"            `shouldBe` Right [KwZero]
-        tokenize "zero true"       `shouldBe` Right [KwZero,KwTrue]
-        tokenize "zero true false" `shouldBe` Right [KwZero,KwTrue,KwFalse]
+        tokenize "zero" `shouldReturn` [KwZero]
+        tokenize "zero true" `shouldReturn` [KwZero,KwTrue]
+        tokenize "zero true false" `shouldReturn` [KwZero,KwTrue,KwFalse]
 
     context "when given string contains non-keyword" $ do
       it "fails with most left non-keyword" $ do
-        tokenize "iff than els" `shouldBe` Left "iff"
-        tokenize "if  than els" `shouldBe` Left "than"
-        tokenize "if  then els" `shouldBe` Left "els"
+        tokenize "iff than els" `shouldThrow` "Unexpected character sequence: \"iff\""
+        tokenize "if  than els" `shouldThrow` "Unexpected character sequence: \"than\""
+        tokenize "if  then els" `shouldThrow` "Unexpected character sequence: \"els\""
