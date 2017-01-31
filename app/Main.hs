@@ -14,5 +14,5 @@ main = do
       case mbLine of
         Nothing -> return ()
         Just cmd | ":q" `isPrefixOf` cmd -> return ()
-        Just expr -> addHistory expr >> putStrLn (either id show $ compute expr) >> go
+        Just expr -> addHistory expr >> putStrLn (either id show $ compute $ expr ++ " ;") >> go
     compute expr = tokenize expr >>= parse >>= eval

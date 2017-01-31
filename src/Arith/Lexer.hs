@@ -8,7 +8,7 @@ module Arith.Lexer
 import Data.Maybe (maybe)
 import Control.Monad.Except (throwError)
 
-data Token = KwIf | KwThen | KwElse | KwZero | KwSucc | KwPred | KwTrue | KwFalse | KwIsZero
+data Token = KwIf | KwThen | KwElse | KwZero | KwSucc | KwPred | KwTrue | KwFalse | KwIsZero | EndOfExpression
   deriving (Eq, Show)
 
 tokenize :: String -> Either String [Token]
@@ -27,4 +27,5 @@ tokenize input = fmap reverse $ foldl prependToken (return []) $ words input
       ,("true"    ,KwTrue  )
       ,("false"   ,KwFalse )
       ,("is_zero" ,KwIsZero)
+      ,(";"       ,EndOfExpression)
       ]
