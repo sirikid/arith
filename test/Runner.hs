@@ -1,13 +1,13 @@
 module Main where
 
-import Test.Hspec
+import SpecUtils (describe, hspec)
 import qualified Arith.InterpreterSpec as I
-import qualified Arith.LexerSpec       as L
-import qualified Arith.ParserSpec      as P
+import qualified Arith.LexerSpec as L
+import qualified Arith.ParserSpec as P
 
 main :: IO ()
 main = hspec $ do
   describe "Arith" $ do
-    describe "Lexer"       L.spec
-    describe "Parser"      P.spec
+    describe "Lexer" L.spec
+    describe "Parser" P.spec
     describe "Interpreter" I.spec

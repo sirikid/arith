@@ -3,12 +3,7 @@ module Arith.LexerSpec
   ) where
 
 import Arith.Lexer
-import Control.Monad.Except (throwError)
-import Test.Hspec (context, describe, it, shouldBe, Spec)
-
--- FIXME
-actual `shouldReturn` expected = actual `shouldBe` return expected
-actual `shouldThrow` expectedError = actual `shouldBe` throwError expectedError
+import SpecUtils (Spec, context, describe, it, shouldReturn, shouldThrow)
 
 spec :: Spec
 spec = do

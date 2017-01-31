@@ -4,7 +4,7 @@ module Arith.InterpreterSpec
 
 import Arith.Interpreter
 import Arith.Parser (Term(..))
-import Test.Hspec
+import SpecUtils (Spec)
 
 spec :: Spec
 spec = return ()
