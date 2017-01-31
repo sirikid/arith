@@ -40,4 +40,4 @@ lookForExpression, lookForCondition, lookForThenBranch, lookForElseBranch :: [To
 lookForExpression = lookUntil (== EndOfExpression)
 lookForCondition  = lookUntil (== KwThen)
 lookForThenBranch = lookUntil (== KwElse)
-lookForElseBranch = lookUntil (`elem` [KwIf, KwThen, KwElse, EndOfExpression])
+lookForElseBranch = lookUntil (`elem` [KwThen, KwElse, EndOfExpression])
