@@ -36,9 +36,10 @@ test-suite arith-spec
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Runner.hs
-  other-modules:       Arith.LexerSpec
+  other-modules:       Arith.InterpreterSpec
+                     , Arith.LexerSpec
                      , Arith.ParserSpec
-                     , Arith.InterpreterSpec
+                     , SpecUtils
   build-depends:       arith
                      , base
                      , hspec
