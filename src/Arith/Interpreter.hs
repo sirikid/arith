@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Arith.Interpreter
-  ( eval
+  ( evaluate
   ) where
 
 import Arith.Parser (Term(..))
@@ -23,19 +23,19 @@ isNumericValue term = case term of
   TmPred t -> isNumericValue t
   _        -> False
 
-eval :: Term -> Either String Term
-eval term = go term
+evaluate :: Term -> Either String Term
+evaluate = go
   where
-    go (TmIf cond ifTrue ifFalse) = case cond of
-      TmTrue  -> Right $ ifTrue
-      TmFalse -> Right $ ifFalse
-      _       -> go cond >>= \cond' -> go $ TmIf cond' ifTrue ifFalse
-    go (TmIsZero n) | isNumericValue n = isZero <$> go n
+    go (TmIf condition thenBranch elseBranch) = case condition of
+      TmTrue  -> go thenBranch
+      TmFalse -> go elseBranch
+      _       -> TmIf <$> go condition <*> pure thenBranch <*> pure elseBranch
+    go (TmIsZero t) | isNumericValue t = isZero <$> go t
     go (TmSucc (TmPred t)) | isNumericValue t = go t
     go (TmPred (TmSucc t)) | isNumericValue t = go t
     go t = if isValue t
-      then return t
+      then pure t
       else throwError $ "Unevaluable term: " ++ show t
-    isZero n | isNumericValue n = if n == TmZero
+    isZero t | isNumericValue t = if t == TmZero
       then TmTrue
       else TmFalse

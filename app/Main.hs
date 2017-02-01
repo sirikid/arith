@@ -12,7 +12,7 @@ main = do
     go = do
       mbLine <- readline " >> "
       case mbLine of
-        Nothing -> return ()
-        Just cmd | ":q" `isPrefixOf` cmd -> return ()
+        Nothing -> pure ()
+        Just cmd | ":q" `isPrefixOf` cmd -> pure ()
         Just expr -> addHistory expr >> putStrLn (either id show $ compute $ expr ++ " ;") >> go
-    compute expr = tokenize expr >>= parse >>= eval
+    compute expr = tokenize expr >>= parse >>= evaluate
