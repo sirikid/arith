@@ -29,10 +29,12 @@ evaluate = go
     go (TmIf condition thenBranch elseBranch) = case condition of
       TmTrue  -> go thenBranch
       TmFalse -> go elseBranch
-      _       -> TmIf <$> go condition <*> pure thenBranch <*> pure elseBranch
+      _       -> go condition >>= \condition' -> go $ TmIf condition' thenBranch elseBranch
     go (TmIsZero t) | isNumericValue t = isZero <$> go t
     go (TmSucc (TmPred t)) | isNumericValue t = go t
     go (TmPred (TmSucc t)) | isNumericValue t = go t
+    go (TmSucc t) | isNumericValue t = go t >>= fmap TmSucc . go
+    go (TmPred t) | isNumericValue t = go t >>= fmap TmPred . go
     go t = if isValue t
       then pure t
       else throwError $ "Unevaluable term: " ++ show t
