@@ -29,7 +29,9 @@ evaluate = go
     go (TmIf condition thenBranch elseBranch) = case condition of
       TmTrue  -> go thenBranch
       TmFalse -> go elseBranch
-      _       -> go condition >>= \condition' -> go $ TmIf condition' thenBranch elseBranch
+      _       -> go condition >>= \condition' -> if condition == condition'
+        then throwError "Condition is not a boolean value"
+        else go $ TmIf condition' thenBranch elseBranch
     go (TmIsZero t) | isNumericValue t = isZero <$> go t
     go (TmSucc (TmPred t)) | isNumericValue t = go t
     go (TmPred (TmSucc t)) | isNumericValue t = go t
