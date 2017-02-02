@@ -9,7 +9,17 @@ import Arith.Lexer (Token(..))
 import Control.Monad.Except (throwError)
 
 data Term = TmZero | TmTrue | TmFalse | TmSucc Term | TmPred Term | TmIsZero Term | TmIf Term Term Term
-  deriving (Eq, Show)
+  deriving Eq
+
+instance Show Term where
+  show = go
+    where
+      go TmZero = "zero"
+      go TmTrue = "true"
+      go TmFalse = "false"
+      go (TmSucc tm) = "succ " ++ show tm
+      go (TmPred tm) = "pred " ++ show tm
+      go (TmIf c tb eb) = "if " ++ show c ++ " then " ++ show tb ++ " else " ++ show eb
 
 parse :: [Token] -> Either String Term
 parse tokens = do
