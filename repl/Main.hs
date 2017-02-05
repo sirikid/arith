@@ -1,6 +1,8 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Main where
 
-import Arith
+import Arith (evaluateAndShow)
 import Data.List (isPrefixOf)
 import System.Console.Readline (addHistory, readline)
 
@@ -9,10 +11,10 @@ main = do
   putStrLn "Type :q for quit"
   go
   where
-    go = do
-      mbLine <- readline " >> "
-      case mbLine of
-        Nothing -> pure ()
-        Just cmd | ":q" `isPrefixOf` cmd -> pure ()
-        Just expr -> addHistory expr >> putStrLn (either id show $ compute $ expr ++ " ;") >> go
-    compute expr = tokenize expr >>= parse >>= evaluate
+    go = readline " >> " >>= \case
+      Nothing -> pure ()
+      Just command | ":q" `isPrefixOf` command -> pure ()
+      Just expression -> do
+        addHistory expression
+        putStrLn $ evaluateAndShow expression
+        go
