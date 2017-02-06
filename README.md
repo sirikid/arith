@@ -6,7 +6,7 @@ Arith is simple untyped language, first exercise from Benjamin Pierce's book ["T
 
 ## BNF
 
-	expression = [space] term {space} ';'
+	expression = term [space] ';'
 
 	term = 'zero'
 		| 'true'
