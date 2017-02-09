@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase, FlexibleContexts #-}
 
 module Arith.Lexer
   ( Token(..)
@@ -7,29 +7,36 @@ module Arith.Lexer
 
 import Control.Monad.Except (throwError)
 import Data.List (groupBy)
-import Data.Maybe (maybe)
 
 data Token = KwIf | KwThen | KwElse | KwZero | KwSucc | KwPred | KwTrue | KwFalse | KwIsZero | EndOfExpression
   deriving (Eq, Show)
 
-(<&>) = flip (<$>)
-
 tokenize :: String -> Either String [Token]
-tokenize = fmap reverse . foldl prependToken (pure []) . concatMap (groupBy semicolon) . words
+tokenize
+  = fmap reverse
+  . foldl keepFirstError (pure [])
+  . fmap intoToken
+  . concatMap (groupBy separators)
+  . words
   where
-    semicolon a b = ';' `notElem` [a, b]
-    prependToken acc word = acc >>= \ts -> intoToken word <&> (:ts)
-    intoToken word = maybe (unexpected word) pure $ lookup word wordsToTokens
-    unexpected = throwError . ("Unexpected character sequence: " ++) . show
-    wordsToTokens =
-      [ ("if"      , KwIf)
-      , ("then"    , KwThen)
-      , ("else"    , KwElse)
-      , ("zero"    , KwZero)
-      , ("succ"    , KwSucc)
-      , ("pred"    , KwPred)
-      , ("true"    , KwTrue)
-      , ("false"   , KwFalse)
-      , ("is_zero" , KwIsZero)
-      , (";"       , EndOfExpression)
-      ]
+    -- TODO Multicharacter separators and operators
+    separators a b = not $ separator `any` [[a], [b], [a, b]]
+    separator = (== ";")
+    keepFirstError error@(Left _) = const error
+    keepFirstError (Right tokens) = \case
+      Left error -> throwError error
+      Right nextToken -> pure (nextToken:tokens)
+
+intoToken :: String -> Either String Token
+intoToken = \case
+  ";" -> pure EndOfExpression
+  "else" -> pure KwElse
+  "false" -> pure KwFalse
+  "if" -> pure KwIf
+  "is_zero" -> pure KwIsZero
+  "pred" -> pure KwPred
+  "succ" -> pure KwSucc
+  "then" -> pure KwThen
+  "true" -> pure KwTrue
+  "zero" -> pure KwZero
+  wtf -> throwError $ "Unexpected character sequence: " ++ show wtf
