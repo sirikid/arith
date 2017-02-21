@@ -8,20 +8,20 @@ module Arith.Lexer
 import Control.Monad.Except (throwError)
 import Data.List (groupBy)
 
-data Token = KwIf | KwThen | KwElse | KwZero | KwSucc | KwPred | KwTrue | KwFalse | KwIsZero | EndOfExpression
+data Token = KwIf | KwThen | KwElse | KwZero | KwSucc | KwPred | KwTrue
+  | KwFalse | KwIsZero | EndOfExpression
   deriving (Eq, Show)
 
 tokenize :: String -> Either String [Token]
-tokenize
-  = fmap reverse
+tokenize = fmap reverse
   . foldl keepFirstError (pure [])
   . fmap intoToken
   . concatMap (groupBy separators)
   . words
   where
     -- TODO Multicharacter separators and operators
-    separators a b = not $ separator `any` [[a], [b], [a, b]]
-    separator = (== ";")
+    separators a b = not (separator a || separator b)
+    separator = (== ';')
     keepFirstError error@(Left _) = const error
     keepFirstError (Right tokens) = \case
       Left error -> throwError error

@@ -2,6 +2,9 @@
 
 module Arith.Interpreter
   ( evaluate
+  , isBooleanValue
+  , isNumericValue
+  , isValue
   ) where
 
 import Arith.Parser (Term(..))
@@ -12,24 +15,24 @@ isValue term = isBooleanValue term || isNumericValue term
 
 isBooleanValue :: Term -> Bool
 isBooleanValue term = case term of
-  TmTrue  -> True
+  TmTrue -> True
   TmFalse -> True
-  _       -> False
+  _ -> False
 
 isNumericValue :: Term -> Bool
 isNumericValue term = case term of
-  TmZero   -> True
+  TmZero -> True
   TmSucc t -> isNumericValue t
   TmPred t -> isNumericValue t
-  _        -> False
+  _ -> False
 
 evaluate :: Term -> Either String Term
 evaluate = go
   where
     go (TmIf condition thenBranch elseBranch) = case condition of
-      TmTrue  -> go thenBranch
+      TmTrue -> go thenBranch
       TmFalse -> go elseBranch
-      _       -> go condition >>= \condition' -> if condition == condition'
+      _ -> go condition >>= \condition' -> if condition == condition'
         then throwError "Condition is not a boolean value"
         else go $ TmIf condition' thenBranch elseBranch
     go (TmIsZero t) | isNumericValue t = isZero <$> go t
