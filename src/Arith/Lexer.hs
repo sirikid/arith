@@ -6,26 +6,18 @@ module Arith.Lexer
   ) where
 
 import Control.Monad.Except (throwError)
+import Data.Char (isDigit)
 import Data.List (groupBy)
 
 data Token = KwIf | KwThen | KwElse | KwZero | KwSucc | KwPred | KwTrue
-  | KwFalse | KwIsZero | EndOfExpression
+  | KwFalse | KwIsZero | EndOfExpression | Literal Integer
   deriving (Eq, Show)
 
 tokenize :: String -> Either String [Token]
-tokenize = fmap reverse
-  . foldl keepFirstError (pure [])
-  . fmap intoToken
-  . concatMap (groupBy separators)
-  . words
+tokenize = traverse intoToken . concatMap (groupBy separators) . words
   where
     -- TODO Multicharacter separators and operators
-    separators a b = not (separator a || separator b)
-    separator = (== ';')
-    keepFirstError error@(Left _) = const error
-    keepFirstError (Right tokens) = \case
-      Left error -> throwError error
-      Right nextToken -> pure (nextToken:tokens)
+    separators a b = not (a == ';' || b == ';')
 
 intoToken :: String -> Either String Token
 intoToken = \case
@@ -39,4 +31,11 @@ intoToken = \case
   "then" -> pure KwThen
   "true" -> pure KwTrue
   "zero" -> pure KwZero
-  wtf -> throwError $ "Unexpected character sequence: " ++ show wtf
+  wtf -> if isValidLiteral wtf
+    then pure $ Literal (read wtf :: Integer)
+    else throwError $ "Unexpected character sequence: " ++ show wtf
+  where
+    isValidLiteral = \case
+      '-':chars@(_:_) -> isDigit `all` chars
+      chars@(_:_) -> isDigit `all` chars
+      _ -> False
