@@ -6,7 +6,7 @@ module Arith.Parser
   ) where
 
 import Arith.Lexer (Token(..))
-import Control.Monad.Except (throwError)
+import Control.Monad.Except (MonadError, throwError)
 import Data.List (insertBy)
 
 data Term = TmZero | TmTrue | TmFalse | TmSucc Term | TmPred Term
@@ -22,7 +22,7 @@ instance Show Term where
     (TmPred t) -> "pred " ++ show t
     (TmIf c t e) -> "if " ++ show c ++ " then " ++ show t ++ " else " ++ show e
 
-parse :: [Token] -> Either String Term
+parse :: MonadError String r => [Token] -> r Term
 parse tokens = do
   (ts, tm) <- lookForExpression $ concatMap expandLiteral tokens
   if null ts
@@ -33,7 +33,7 @@ parse tokens = do
       Literal lit -> insertBy (\_ _ -> GT) KwZero $ replicate (fromInteger $ abs lit) $ if lit > 0 then KwSucc else KwPred
       nonLiteral -> [nonLiteral]
 
-lookUntil :: (Token -> Bool) -> [Token] -> Either String ([Token], Term)
+lookUntil :: MonadError String r => (Token -> Bool) -> [Token] -> r ([Token], Term)
 lookUntil predicate = \case
   [] -> throwError "Unexpected end of sequence"
   [EndOfExpression] -> throwError "Unexpected end of expression"
@@ -52,7 +52,7 @@ lookUntil predicate = \case
   where
     go = lookUntil predicate
 
-lookForExpression, lookForCondition, lookForThenBranch, lookForElseBranch :: [Token] -> Either String ([Token], Term)
+lookForExpression, lookForCondition, lookForThenBranch, lookForElseBranch :: MonadError String r => [Token] -> r ([Token], Term)
 lookForExpression = lookUntil (== EndOfExpression)
 lookForCondition  = lookUntil (== KwThen)
 lookForThenBranch = lookUntil (== KwElse)

@@ -5,7 +5,7 @@ module Arith.Lexer
   , tokenize
   ) where
 
-import Control.Monad.Except (throwError)
+import Control.Monad.Except (MonadError, throwError)
 import Data.Char (isDigit)
 import Data.List (groupBy)
 
@@ -13,13 +13,13 @@ data Token = KwIf | KwThen | KwElse | KwZero | KwSucc | KwPred | KwTrue
   | KwFalse | KwIsZero | EndOfExpression | Literal Integer
   deriving (Eq, Show)
 
-tokenize :: String -> Either String [Token]
+tokenize :: MonadError String r => String -> r [Token]
 tokenize = traverse intoToken . concatMap (groupBy separators) . words
   where
     -- TODO Multicharacter separators and operators
     separators a b = not (a == ';' || b == ';')
 
-intoToken :: String -> Either String Token
+intoToken :: MonadError String r => String -> r Token
 intoToken = \case
   ";" -> pure EndOfExpression
   "else" -> pure KwElse

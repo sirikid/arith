@@ -8,7 +8,7 @@ module Arith.Interpreter
   ) where
 
 import Arith.Parser (Term(..))
-import Control.Monad.Except (throwError)
+import Control.Monad.Except (MonadError, throwError)
 
 isValue :: Term -> Bool
 isValue term = isBooleanValue term || isNumericValue term
@@ -26,7 +26,7 @@ isNumericValue term = case term of
   TmPred t -> isNumericValue t
   _ -> False
 
-evaluate :: Term -> Either String Term
+evaluate :: MonadError String r => Term -> r Term
 evaluate = go
   where
     go (TmIf condition thenBranch elseBranch) = case condition of
