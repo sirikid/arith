@@ -6,11 +6,10 @@ module Arith.Lexer
   ) where
 
 import Control.Monad.Except (MonadError, throwError)
-import Data.Char (isDigit)
 import Data.List (groupBy)
 
 data Token = KwIf | KwThen | KwElse | KwZero | KwSucc | KwPred | KwTrue
-  | KwFalse | KwIsZero | EndOfExpression | Literal Integer
+  | KwFalse | KwIsZero | EndOfExpression
   deriving (Eq, Show)
 
 tokenize :: MonadError String r => String -> r [Token]
@@ -31,11 +30,4 @@ intoToken = \case
   "then" -> pure KwThen
   "true" -> pure KwTrue
   "zero" -> pure KwZero
-  wtf -> if isValidLiteral wtf
-    then pure $ Literal (read wtf :: Integer)
-    else throwError $ "Unexpected character sequence: " ++ show wtf
-  where
-    isValidLiteral = \case
-      '-':chars@(_:_) -> isDigit `all` chars
-      chars@(_:_) -> isDigit `all` chars
-      _ -> False
+  wtf -> throwError $ "Unexpected character sequence: " ++ show wtf

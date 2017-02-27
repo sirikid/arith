@@ -7,7 +7,6 @@ module Arith.Parser
 
 import Arith.Lexer (Token(..))
 import Control.Monad.Except (MonadError, throwError)
-import Data.List (insertBy)
 
 data Term = TmZero | TmTrue | TmFalse | TmSucc Term | TmPred Term
   | TmIsZero Term | TmIf Term Term Term
@@ -24,14 +23,10 @@ instance Show Term where
 
 parse :: MonadError String r => [Token] -> r Term
 parse tokens = do
-  (ts, tm) <- lookForExpression $ concatMap expandLiteral tokens
+  (ts, tm) <- lookForExpression tokens
   if null ts
     then pure tm
     else throwError $ "Unutilized tokens: " ++ show ts
-  where
-    expandLiteral = \case
-      Literal lit -> insertBy (\_ _ -> GT) KwZero $ replicate (fromInteger $ abs lit) $ if lit > 0 then KwSucc else KwPred
-      nonLiteral -> [nonLiteral]
 
 lookUntil :: MonadError String r => (Token -> Bool) -> [Token] -> r ([Token], Term)
 lookUntil predicate = \case
