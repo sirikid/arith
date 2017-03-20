@@ -10,16 +10,7 @@ import Control.Monad.Except (MonadError, throwError)
 
 data Term = TmZero | TmTrue | TmFalse | TmSucc Term | TmPred Term
   | TmIsZero Term | TmIf Term Term Term
-  deriving Eq
-
-instance Show Term where
-  show = \case
-    TmZero -> "zero"
-    TmTrue -> "true"
-    TmFalse -> "false"
-    (TmSucc t) -> "succ " ++ show t
-    (TmPred t) -> "pred " ++ show t
-    (TmIf c t e) -> "if " ++ show c ++ " then " ++ show t ++ " else " ++ show e
+  deriving (Eq, Show)
 
 parse :: MonadError String r => [Token] -> r Term
 parse tokens = do
