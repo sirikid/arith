@@ -34,11 +34,9 @@ executable arith-repl
 
 test-suite arith-spec
   type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
+  hs-source-dirs:      spec
   main-is:             Runner.hs
-  other-modules:       Arith.InterpreterSpec
-                     , Arith.LexerSpec
-                     , Arith.ParserSpec
+  other-modules:       Arith.LexerSpec
                      , SpecUtils
   build-depends:       arith
                      , base
