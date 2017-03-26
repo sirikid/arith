@@ -38,14 +38,15 @@ instance Show Token where
 
 data TokenizationFailure
   = UnexpectedSequence String
+  deriving (Eq, Show)
 
-tokenize :: MonadError String ex => String -> ex [Token]
+tokenize :: MonadError TokenizationFailure ex => String -> ex [Token]
 tokenize = traverse intoToken . concatMap (groupBy separators) . words
   where
     -- TODO Multicharacter separators and operators
     separators a b = not (a == ';' || b == ';')
 
-intoToken :: MonadError String ex => String -> ex Token
+intoToken :: MonadError TokenizationFailure ex => String -> ex Token
 intoToken = \case
   "true" -> pure KwTrue
   "false" -> pure KwFalse
@@ -59,4 +60,4 @@ intoToken = \case
   "(" -> pure LeftParen
   ")" -> pure RightParen
   ";" -> pure EndOfExpression
-  wtf -> throwError $ "Unexpected character sequence: " ++ show wtf
+  wtf -> throwError . UnexpectedSequence $ wtf
