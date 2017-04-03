@@ -18,7 +18,7 @@ spec = do
         tokenize "" `shouldReturn` []
 
     context "when given a string with single keyword or separator" $ do
-      it "returns one-iten list with corresponding token" $ do
+      it "returns one-item list with corresponding token" $ do
         tokenize "true" `shouldReturn` [KwTrue]
         tokenize "false" `shouldReturn` [KwFalse]
         tokenize "if" `shouldReturn` [KwIf]
