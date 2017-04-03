@@ -31,7 +31,7 @@ parse tokens = do
 lookUntil :: MonadError String r => (Token -> Bool) -> [Token] -> r ([Token], Term)
 lookUntil predicate = \case
   [] -> throwError "Unexpected end of sequence"
-  [EndOfExpression] -> throwError "Unexpected end of expression"
+  [Semicolon] -> throwError "Unexpected end of expression"
   (KwZero:t:ts) | predicate t -> pure (ts, TmZero)
   (KwTrue:t:ts) | predicate t -> pure (ts, TmTrue)
   (KwFalse:t:ts) | predicate t -> pure (ts, TmFalse)
@@ -48,7 +48,7 @@ lookUntil predicate = \case
     go = lookUntil predicate
 
 lookForExpression, lookForCondition, lookForThenBranch, lookForElseBranch :: MonadError String r => [Token] -> r ([Token], Term)
-lookForExpression = lookUntil (== EndOfExpression)
+lookForExpression = lookUntil (== Semicolon)
 lookForCondition  = lookUntil (== KwThen)
 lookForThenBranch = lookUntil (== KwElse)
-lookForElseBranch = lookUntil (`elem` [KwThen, KwElse, EndOfExpression])
+lookForElseBranch = lookUntil (`elem` [KwThen, KwElse, Semicolon])

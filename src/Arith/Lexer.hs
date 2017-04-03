@@ -2,6 +2,7 @@
 
 module Arith.Lexer
   ( Token(..)
+  , TokenizationFailure(..)
   , tokenize
   ) where
 
@@ -18,23 +19,8 @@ data Token
   | KwIsZero
   | LeftParen
   | RightParen
-  | EndOfExpression -- TODO Remove this
-  deriving (Eq)
-
-instance Show Token where
-  show = \case
-    KwTrue -> "true"
-    KwFalse -> "false"
-    KwIf -> "if"
-    KwThen -> "then"
-    KwElse -> "else"
-    KwZero -> "zero"
-    KwSucc -> "succ"
-    KwPred -> "pred"
-    KwIsZero -> "iszero"
-    LeftParen -> "("
-    RightParen -> ")"
-    EndOfExpression -> ";"
+  | Semicolon -- TODO Remove this
+  deriving (Eq, Show)
 
 data TokenizationFailure
   = UnexpectedSequence String
@@ -59,5 +45,5 @@ intoToken = \case
   "iszero" -> pure KwIsZero
   "(" -> pure LeftParen
   ")" -> pure RightParen
-  ";" -> pure EndOfExpression
+  ";" -> pure Semicolon
   wtf -> throwError . UnexpectedSequence $ wtf
