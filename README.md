@@ -1,25 +1,26 @@
 # Arith
 
-[![Build Status][build_status_badge]][build_status]
+[![Build Status][badge]][status]
 
 Arith is simple untyped language, first exercise from Benjamin Pierce's book ["Types and programming languages"][tapl].
 
-## BNF
+## EBNF
 
-	expression = term [space] ';'
+    term
+      = 'true'
+      | 'false'
+      | 'if' spaces term spaces 'then' spaces term spaces 'else' spaces term
+      | 'zero'
+      | 'succ' spaces term
+      | 'pred' spaces term
+      | 'iszero' spaces term
+      | '(' term ')'
+      .
 
-	term = 'zero'
-		| 'true'
-		| 'false'
-		| 'succ' {space} term
-		| 'pred' {space} term
-		| 'is_zero' {space} term
-		| 'if' {space} term {space} 'then' {space} term {space} 'else' {space} term
+    spaces = space {space} .
 
-	space = '\t' | '\n' | '\r'| '\f' | '\v' | Unicode space character
+	space = '\t' | '\n' | '\r'| '\f' | '\v' | Unicode space character .
 
-
-[build_status]: https://travis-ci.org/sirikid/arith
-[build_status_badge]: https://travis-ci.org/sirikid/arith.svg?branch=master
+[status]: https://travis-ci.org/sirikid/arith
+[badge]: https://travis-ci.org/sirikid/arith.svg?branch=master
 [tapl]: https://www.cis.upenn.edu/~bcpierce/tapl/
-
