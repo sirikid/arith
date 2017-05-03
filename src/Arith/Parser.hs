@@ -21,17 +21,17 @@ instance Show Term where
     (TmPred t) -> "pred " ++ show t
     (TmIf c t e) -> "if " ++ show c ++ " then " ++ show t ++ " else " ++ show e
 
-parse :: MonadError String r => [Token] -> r Term
+parse :: MonadError String ex => [Token] -> ex Term
 parse tokens = do
   (ts, tm) <- lookForExpression tokens
   if null ts
     then pure tm
     else throwError $ "Unutilized tokens: " ++ show ts
 
-lookUntil :: MonadError String r => (Token -> Bool) -> [Token] -> r ([Token], Term)
+lookUntil :: MonadError String ex => (Token -> Bool) -> [Token] -> ex ([Token], Term)
 lookUntil predicate = \case
   [] -> throwError "Unexpected end of sequence"
-  [Semicolon] -> throwError "Unexpected end of expression"
+  [EndOfExpression] -> throwError "Unexpected end of expression"
   (KwZero:t:ts) | predicate t -> pure (ts, TmZero)
   (KwTrue:t:ts) | predicate t -> pure (ts, TmTrue)
   (KwFalse:t:ts) | predicate t -> pure (ts, TmFalse)
@@ -47,8 +47,8 @@ lookUntil predicate = \case
   where
     go = lookUntil predicate
 
-lookForExpression, lookForCondition, lookForThenBranch, lookForElseBranch :: MonadError String r => [Token] -> r ([Token], Term)
-lookForExpression = lookUntil (== Semicolon)
+lookForExpression, lookForCondition, lookForThenBranch, lookForElseBranch :: MonadError String ex => [Token] -> ex ([Token], Term)
+lookForExpression = lookUntil (== EndOfExpression)
 lookForCondition  = lookUntil (== KwThen)
 lookForThenBranch = lookUntil (== KwElse)
-lookForElseBranch = lookUntil (`elem` [KwThen, KwElse, Semicolon])
+lookForElseBranch = lookUntil (`elem` [KwThen, KwElse, EndOfExpression])

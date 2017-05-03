@@ -3,6 +3,7 @@
 module Arith.Lexer
   ( Token(..)
   , TokenizationFailure(..)
+  , tokenizeExpression
   , tokenize
   ) where
 
@@ -10,6 +11,8 @@ import Control.Monad.Except (MonadError, throwError)
 import Data.List (groupBy)
 
 data Token
+  -- Common tokens, corresponding to the constructions of the described
+  -- language.
   = KwTrue
   | KwFalse
   | KwIf | KwThen | KwElse
@@ -19,18 +22,26 @@ data Token
   | KwIsZero
   | LeftParen
   | RightParen
-  | Semicolon -- TODO Remove this
+  -- NOTE: This is a synthetic token which must identify the end of expression.
+  -- This token should not be the result of lexical parsing.
+  | EndOfExpression
   deriving (Eq, Show)
 
 data TokenizationFailure
   = UnexpectedSequence String
   deriving (Eq, Show)
 
+-- | This function is a special version of tokenize, which is designed to work
+-- with separated expressions. Appends a EndOfExpression token to the result.
+tokenizeExpression :: MonadError TokenizationFailure ex => String -> ex [Token]
+tokenizeExpression = fmap (++ [EndOfExpression]) . tokenize
+
 tokenize :: MonadError TokenizationFailure ex => String -> ex [Token]
-tokenize = traverse intoToken . concatMap (groupBy separators) . words
+tokenize = traverse intoToken . concatMap (groupBy parens) . words
   where
-    -- TODO Multicharacter separators and operators
-    separators a b = not (a == ';' || b == ';')
+    parens a b =
+      a /= '(' && a /= ')' &&
+      b /= '(' && b /= ')'
 
 intoToken :: MonadError TokenizationFailure ex => String -> ex Token
 intoToken = \case
@@ -45,5 +56,4 @@ intoToken = \case
   "iszero" -> pure KwIsZero
   "(" -> pure LeftParen
   ")" -> pure RightParen
-  ";" -> pure Semicolon
-  wtf -> throwError . UnexpectedSequence $ wtf
+  wtf -> throwError (UnexpectedSequence wtf)

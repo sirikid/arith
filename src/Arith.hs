@@ -14,4 +14,4 @@ import Data.Bifunctor (first)
 evaluateAndShow :: String -> String
 evaluateAndShow = either id show . (tokenize' >=> parse >=> evaluate)
   where
-    tokenize' = first show . tokenize
+    tokenize' = first show . tokenizeExpression
