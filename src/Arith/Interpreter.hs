@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, LambdaCase #-}
+{-# LANGUAGE FlexibleContexts, LambdaCase, ViewPatterns #-}
 
 module Arith.Interpreter
   ( bigStep
@@ -59,6 +59,26 @@ evaluate t
   | isValue t = pure t
   | otherwise = smallStep t >>= evaluate
 
--- TODO: Implement
 bigStep :: MonadError String ex => Term -> ex Term
-bigStep = undefined
+bigStep = go
+  where
+    down = either undefined id . go
+    go :: MonadError String ex => Term -> ex Term
+    -- B-Balue
+    go t | isValue t = pure t
+    -- B-IfTrue
+    go (TmIf (down -> TmTrue) t _) = go t
+    -- B-IfFalse
+    go (TmIf (down -> TmFalse) _ t) = go t
+    -- B-Succ
+    go (TmSucc (down -> t)) | isNumericValue t = TmSucc <$> go t
+    -- B-PredZero
+    go (TmPred (down -> TmZero)) = pure TmZero
+    -- B-PredSucc
+    go (TmPred (down -> TmSucc t)) | isNumericValue t = pure t
+    -- B-IsZeroTrue
+    go (TmIsZero (down -> TmZero)) = pure TmTrue
+    -- B-IsZeroFalse
+    go (TmIsZero (down -> TmSucc t)) | isNumericValue t = pure TmFalse
+    -- No rule applies
+    go t = throwError ("Unevaluable term: " ++ show t)
