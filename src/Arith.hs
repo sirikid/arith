@@ -9,6 +9,7 @@ import Arith.Interpreter
 import Arith.Lexer
 import Arith.Parser
 import Control.Monad ((>=>))
+import Data.Bifunctor (first)
 
 evaluateAndShow :: String -> String
-evaluateAndShow = either id show . (tokenize >=> parse >=> evaluate)
+evaluateAndShow = either id show . (tokenizeExpression >=> parse >=> bigStep)

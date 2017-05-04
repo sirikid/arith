@@ -1,33 +1,23 @@
-{-# LANGUAGE LambdaCase, FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Arith.Lexer
   ( Token(..)
+  , tokenizeExpression
   , tokenize
   ) where
 
+import Arith.Token (Token(..), fromString)
 import Control.Monad.Except (MonadError, throwError)
 import Data.List (groupBy)
 
-data Token = KwIf | KwThen | KwElse | KwZero | KwSucc | KwPred | KwTrue
-  | KwFalse | KwIsZero | EndOfExpression
-  deriving (Eq, Show)
+-- | This function is a special version of tokenize, which is designed to work
+-- with separated expressions. Appends a EndOfExpression token to the result.
+tokenizeExpression :: MonadError String ex => String -> ex [Token]
+tokenizeExpression = fmap (++ [EndOfExpression]) . tokenize
 
-tokenize :: MonadError String r => String -> r [Token]
-tokenize = traverse intoToken . concatMap (groupBy separators) . words
+tokenize :: MonadError String ex => String -> ex [Token]
+tokenize = traverse fromString . concatMap (groupBy parens) . words
   where
-    -- TODO Multicharacter separators and operators
-    separators a b = not (a == ';' || b == ';')
-
-intoToken :: MonadError String r => String -> r Token
-intoToken = \case
-  ";" -> pure EndOfExpression
-  "else" -> pure KwElse
-  "false" -> pure KwFalse
-  "if" -> pure KwIf
-  "is_zero" -> pure KwIsZero
-  "pred" -> pure KwPred
-  "succ" -> pure KwSucc
-  "then" -> pure KwThen
-  "true" -> pure KwTrue
-  "zero" -> pure KwZero
-  wtf -> throwError $ "Unexpected character sequence: " ++ show wtf
+    parens a b =
+      a /= '(' && a /= ')' &&
+      b /= '(' && b /= ')'

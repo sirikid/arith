@@ -1,48 +1,84 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts, LambdaCase, ViewPatterns #-}
 
 module Arith.Interpreter
-  ( evaluate
-  , isBooleanValue
+  ( bigStep
+  , evaluate
   , isNumericValue
   , isValue
+  , normalize
+  , smallStep
   ) where
 
-import Arith.Parser (Term(..))
+import Arith.Term (Term(..))
 import Control.Monad.Except (MonadError, throwError)
 
-isValue :: Term -> Bool
-isValue term = isBooleanValue term || isNumericValue term
-
-isBooleanValue :: Term -> Bool
-isBooleanValue term = case term of
-  TmTrue -> True
-  TmFalse -> True
-  _ -> False
-
 isNumericValue :: Term -> Bool
-isNumericValue term = case term of
+isNumericValue = \case
   TmZero -> True
   TmSucc t -> isNumericValue t
-  TmPred t -> isNumericValue t
   _ -> False
 
-evaluate :: MonadError String r => Term -> r Term
-evaluate = go
+isValue :: Term -> Bool
+isValue = \case
+  TmTrue -> True
+  TmFalse -> True
+  t -> isNumericValue t
+
+smallStep :: MonadError String ex => Term -> ex Term
+smallStep = go
   where
-    go (TmIf condition thenBranch elseBranch) = case condition of
-      TmTrue -> go thenBranch
-      TmFalse -> go elseBranch
-      _ -> go condition >>= \condition' -> if condition == condition'
-        then throwError "Condition is not a boolean value"
-        else go $ TmIf condition' thenBranch elseBranch
-    go (TmIsZero t) | isNumericValue t = isZero <$> go t
-    go (TmSucc (TmPred t)) | isNumericValue t = go t
-    go (TmPred (TmSucc t)) | isNumericValue t = go t
-    go (TmSucc t) | isNumericValue t = go t >>= fmap TmSucc . go
-    go (TmPred t) | isNumericValue t = go t >>= fmap TmPred . go
-    go t = if isValue t
-      then pure t
-      else throwError $ "Unevaluable term: " ++ show t
-    isZero t | isNumericValue t = if t == TmZero
-      then TmTrue
-      else TmFalse
+    -- E-IfTrue
+    go (TmIf TmTrue t _) = pure t
+    -- E-IfFalse
+    go (TmIf TmFalse _ t) = pure t
+    -- E-If
+    go (TmIf t1 t2 t3) = TmIf <$> go t1 <*> pure t2 <*> pure t3
+    -- E-Succ
+    go (TmSucc t) = TmSucc <$> go t
+    -- E-PredZero
+    go (TmPred TmZero) = pure TmZero
+    -- E-PredSucc
+    go (TmPred (TmSucc t)) | isNumericValue t = pure t
+    -- E-Pred
+    go (TmPred t) = TmPred <$> go t
+    -- E-IsZeroZero
+    go (TmIsZero TmZero) = pure TmTrue
+    -- E-IsZeroSucc
+    go (TmIsZero (TmSucc t)) | isNumericValue t = pure TmFalse
+    -- E-IsZero
+    go (TmIsZero t) = TmIsZero <$> go t
+    -- No rule applies
+    go t = throwError ("Unevaluable term: " ++ show t)
+
+normalize :: Term -> Term
+normalize t = either (const t) normalize (smallStep t)
+
+-- FIXME: Uninformative error messages
+evaluate :: MonadError String ex => Term -> ex Term
+evaluate t
+  | isValue t = pure t
+  | otherwise = smallStep t >>= evaluate
+
+bigStep :: MonadError String ex => Term -> ex Term
+bigStep = go
+  where
+    down = either undefined id . go
+    go :: MonadError String ex => Term -> ex Term
+    -- B-Balue
+    go t | isValue t = pure t
+    -- B-IfTrue
+    go (TmIf (down -> TmTrue) t _) = go t
+    -- B-IfFalse
+    go (TmIf (down -> TmFalse) _ t) = go t
+    -- B-Succ
+    go (TmSucc (down -> t)) | isNumericValue t = TmSucc <$> go t
+    -- B-PredZero
+    go (TmPred (down -> TmZero)) = pure TmZero
+    -- B-PredSucc
+    go (TmPred (down -> TmSucc t)) | isNumericValue t = pure t
+    -- B-IsZeroTrue
+    go (TmIsZero (down -> TmZero)) = pure TmTrue
+    -- B-IsZeroFalse
+    go (TmIsZero (down -> TmSucc t)) | isNumericValue t = pure TmFalse
+    -- No rule applies
+    go t = throwError ("Unevaluable term: " ++ show t)
