@@ -12,6 +12,4 @@ import Control.Monad ((>=>))
 import Data.Bifunctor (first)
 
 evaluateAndShow :: String -> String
-evaluateAndShow = either id show . (tokenize' >=> parse >=> evaluate)
-  where
-    tokenize' = first show . tokenizeExpression
+evaluateAndShow = either id show . (tokenizeExpression >=> parse >=> evaluate)

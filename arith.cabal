@@ -16,6 +16,7 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Arith
+                     , Arith.Token
                      , Arith.Lexer
                      , Arith.Parser
                      , Arith.Interpreter
@@ -37,6 +38,7 @@ test-suite arith-spec
   hs-source-dirs:      spec
   main-is:             Runner.hs
   other-modules:       Arith.LexerSpec
+                     , Arith.TokenSpec
                      , SpecUtils
   build-depends:       arith
                      , base

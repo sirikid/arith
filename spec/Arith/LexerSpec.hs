@@ -9,7 +9,7 @@ spec :: Spec
 spec = do
   describe "tokenize" $ do
     it "tries to read the sequence of tokens from the string" $ do
-      let string = "true false if then else zero succ pred iszero ( )"
+      let string = "true false if then else 0 succ pred iszero ( )"
       let tokens = [KwTrue, KwFalse, KwIf, KwThen, KwElse, KwZero, KwSucc, KwPred, KwIsZero, LeftParen, RightParen]
       tokenize string `shouldReturn` tokens
 
@@ -24,7 +24,7 @@ spec = do
         tokenize "if" `shouldReturn` [KwIf]
         tokenize "then" `shouldReturn` [KwThen]
         tokenize "else" `shouldReturn` [KwElse]
-        tokenize "zero" `shouldReturn` [KwZero]
+        tokenize "0" `shouldReturn` [KwZero]
         tokenize "succ" `shouldReturn` [KwSucc]
         tokenize "pred" `shouldReturn` [KwPred]
         tokenize "iszero" `shouldReturn` [KwIsZero]
