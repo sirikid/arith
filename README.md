@@ -6,20 +6,15 @@ Arith is simple untyped language, first exercise from Benjamin Pierce's book ["T
 
 ## EBNF
 
-    term
-      = 'true'
-      | 'false'
-      | 'if' spaces term spaces 'then' spaces term spaces 'else' spaces term
-      | 'zero'
-      | 'succ' spaces term
-      | 'pred' spaces term
-      | 'iszero' spaces term
-      | '(' term ')'
-      .
-
-    spaces = space {space} .
-
-	space = '\t' | '\n' | '\r'| '\f' | '\v' | Unicode space character .
+    term =
+      | true
+      | false
+      | if term then term else term
+      | 0
+      | succ term
+      | pred term
+      | iszero term
+      | ( term )
 
 [status]: https://travis-ci.org/sirikid/arith
 [badge]: https://travis-ci.org/sirikid/arith.svg?branch=master
